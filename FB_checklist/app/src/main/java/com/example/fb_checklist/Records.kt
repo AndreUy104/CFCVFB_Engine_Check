@@ -127,7 +127,7 @@ class Records : AppCompatActivity() {
                             text = "Checked By: ${item.checked_by}"
                         }
                         val createdAtTextView = TextView(this@Records).apply {
-                            text = "Created At: ${item.created_at.}"
+                            text = "Created At: ${item.created_at}"
                         }
                         val boarder = TextView(this@Records).apply {
                             text = "-------------------------------------"
