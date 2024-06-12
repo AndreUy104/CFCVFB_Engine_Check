@@ -17,13 +17,13 @@
         android:theme="@style/Theme.FB_checklist"
         tools:targetApi="31">
         <activity
-            android:name=".engines_equipments.checklist"
+            android:name=".Records"
+            android:exported="false" />
+        <activity
+            android:name=".engines_equipments.Checklist"
             android:exported="false" />
         <activity
             android:name=".engines_equipments.BindEngineEquipments"
-            android:exported="false" />
-        <activity
-            android:name=".AddEquipment"
             android:exported="false" />
         <activity
             android:name=".equipments.EquipmentPage"

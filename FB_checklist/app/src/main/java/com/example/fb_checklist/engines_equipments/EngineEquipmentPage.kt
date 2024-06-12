@@ -1,12 +1,11 @@
 package com.example.fb_checklist.engines_equipments
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageButton
-import android.widget.Spinner
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
@@ -14,7 +13,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.fb_checklist.ApiInterface
 import com.example.fb_checklist.BASE_URL
+import com.example.fb_checklist.DataItem.ChecklistEquipmentData
 import com.example.fb_checklist.DataItem.EngineEquipmentDataItem
+import com.example.fb_checklist.DataItem.PostChecklistEquipmnet
+import com.example.fb_checklist.DataItem.UpdateCEData
+import com.example.fb_checklist.MainActivity
 import com.example.fb_checklist.R
 import retrofit2.Call
 import retrofit2.Callback
@@ -34,18 +37,6 @@ class EngineEquipmentPage : AppCompatActivity() {
             onBackPressed()
         }
 
-        val arraySpinner = arrayOf(
-            "Full" , "Mid" , "Low"
-        )
-
-        val adapter = ArrayAdapter(this@EngineEquipmentPage, android.R.layout.simple_spinner_item, arraySpinner)
-
-        val waterLvlSpinner : Spinner = findViewById(R.id.waterLevelSpinner)
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-        waterLvlSpinner.adapter = adapter
-
         // Get the engine ID from the intent
         val engineId = intent.getIntExtra("ENGINE_ID", -1)
         if (engineId != -1) {
@@ -55,6 +46,13 @@ class EngineEquipmentPage : AppCompatActivity() {
             // Handle the case where no valid ID is passed
             Toast.makeText(this, "Invalid Engine ID", Toast.LENGTH_SHORT).show()
         }
+
+        val doneBtn : Button = findViewById(R.id.doneBtn)
+        doneBtn.setOnClickListener {
+            val intent = Intent(this@EngineEquipmentPage, MainActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 
     private fun getEngineDetails(id: Int) {
@@ -167,8 +165,89 @@ class EngineEquipmentPage : AppCompatActivity() {
             actionBtn.text = "Check"
             quantityTextView.textSize = 18f
             tableRow.addView(actionBtn)
+            actionBtn.setOnClickListener {
+                if(actionBtn.text == "Check"){
+                    val newCe = PostChecklistEquipmnet(
+                        checklist_id = intent.getIntExtra("CHECKLIST_ID", -1) ,
+                        ee_id = equipment.id,
+                        status = 1
+                    )
+                    createCE(newCe)
+                    actionBtn.text = "Uncheck"
+                } else{
+                    val updateCE = UpdateCEData(
+                        status = false
+                    )
+                    updateCE(equipment.id , updateCE)
+                }
+            }
 
             equipmentTableLayout.addView(tableRow)
         }
+    }
+
+    private fun createCE(ce : PostChecklistEquipmnet){
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val apiInterface = retrofit.create(ApiInterface::class.java)
+        val retrofitAddCe = apiInterface.createCE(ce)
+
+        retrofitAddCe.enqueue(object : Callback<PostChecklistEquipmnet?> {
+            override fun onResponse(
+                call: Call<PostChecklistEquipmnet?>,
+                response: Response<PostChecklistEquipmnet?>
+            ) {
+                if (response.isSuccessful) {
+                    // Handle successful response
+                    val createdEngine = response.body()
+                    val message = "Saved Changes"
+                    Toast.makeText(this@EngineEquipmentPage, message, Toast.LENGTH_SHORT).show()
+                }else {
+                    val message = "Try Again"
+                    Log.d("Try Again", message)
+                    Toast.makeText(this@EngineEquipmentPage, message, Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<PostChecklistEquipmnet?>, t: Throwable) {
+                Log.d("error Checklist", "onFailure: " + t.message)
+                Toast.makeText(this@EngineEquipmentPage, "Something went Wrong", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+    }
+
+    private fun updateCE(id: Int, updatedCE: UpdateCEData) {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val apiInterface = retrofit.create(ApiInterface::class.java)
+        val retrofitUpdateCe = apiInterface.updateCE(id , updatedCE)
+
+        retrofitUpdateCe.enqueue(object : Callback<ChecklistEquipmentData> {
+            override fun onResponse(call: Call<ChecklistEquipmentData>, response: Response<ChecklistEquipmentData>) {
+                if (response.isSuccessful) {
+                    val updatedChecklist = response.body()
+                    val message = "Checklist updated successfully: $updatedChecklist"
+                    Toast.makeText(this@EngineEquipmentPage, message, Toast.LENGTH_SHORT).show()
+
+                    // You can handle the updated data here if needed
+                    // For example, navigate to another activity or update the UI
+                } else {
+                    // Handle error
+                    Toast.makeText(this@EngineEquipmentPage, "Failed to update checklist", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<ChecklistEquipmentData>, t: Throwable) {
+                // Handle failure
+                Toast.makeText(this@EngineEquipmentPage, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }

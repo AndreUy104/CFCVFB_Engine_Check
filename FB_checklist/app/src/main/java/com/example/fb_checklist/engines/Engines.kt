@@ -10,8 +10,8 @@ import android.widget.LinearLayout
 import com.example.fb_checklist.ApiInterface
 import com.example.fb_checklist.BASE_URL
 import com.example.fb_checklist.DataItem.EngineDataItem
-import com.example.fb_checklist.engines_equipments.EngineEquipmentPage
 import com.example.fb_checklist.R
+import com.example.fb_checklist.engines_equipments.Checklist
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -73,7 +73,7 @@ class Engines : AppCompatActivity() {
 
                         // Optionally, set an OnClickListener for each button
                         engineBtn.setOnClickListener {
-                            val intent = Intent(this@Engines , EngineEquipmentPage::class.java)
+                            val intent = Intent(this@Engines , Checklist::class.java)
                             intent.putExtra("ENGINE_ID", myData.id)
                             startActivity(intent)
                         }

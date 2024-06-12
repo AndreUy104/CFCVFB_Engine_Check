@@ -8,7 +8,7 @@ import com.example.fb_checklist.engines.Engines
 import com.example.fb_checklist.engines_equipments.BindEngineEquipments
 import com.example.fb_checklist.equipments.EquipmentPage
 
-const val BASE_URL = "http://192.168.1.3:8000/"
+const val BASE_URL = "http://192.168.1.40:8000/"
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +30,14 @@ class MainActivity : AppCompatActivity() {
         ee.setOnClickListener {
             toBindPage()
         }
+        records.setOnClickListener {
+            toRecordPage()
+        }
+    }
+
+    private fun toRecordPage() {
+        val intent = Intent(this, Records::class.java)
+        startActivity(intent)
     }
 
     fun toEngineCheckPage(){
