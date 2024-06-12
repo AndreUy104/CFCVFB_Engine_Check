@@ -26,12 +26,14 @@ class ChecklistController extends Controller
                 'engine_id' => 'required|exists:engines,id' ,
                 'engine_status' => 'required|boolean' ,
                 'water_level' => 'required|string|max:10' ,
+                'checked_by' => 'required|string|min: 2'
             ]);
 
             $checklist = new Checklist();
             $checklist->engine_id = $validate['engine_id'];
             $checklist->engine_status = $validate['engine_status'];
             $checklist->water_level = $validate['water_level'];
+            $checklist->checked_by = $validate['checked_by'];
             if( isset($request->remarks) ){
                 $checklist->remarks = $request->remarks;
             } else {

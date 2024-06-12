@@ -40,21 +40,23 @@ class Checklist_EquipmentController extends Controller
      */
     public function show(string $id)
     {
-        $ce = ChecklistEquipment::findOrFail($id)
-            ->join('checklist', 'checklist_equipment.checklist_id', '=', 'checklist.id')
-            ->join('engine_equipments' , 'checklist_equipment.ee_id' , '=' , 'engine_equipments.id')
-            ->join('engines' , 'checklist.engine_id' , '=' , 'engines.id')
-            ->join('equipments' , 'engine_equipments.equipment_id' , '=' , 'equipments.id')
+        $ce = ChecklistEquipment::join('checklist', 'checklist_equipment.checklist_id', '=', 'checklist.id')
+            ->join('engine_equipments', 'checklist_equipment.ee_id', '=', 'engine_equipments.id')
+            ->join('engines', 'checklist.engine_id', '=', 'engines.id')
+            ->join('equipments', 'engine_equipments.equipment_id', '=', 'equipments.id')
+            ->where('checklist.engine_id', $id)
             ->select(
-                'engines.engine_number' ,
-                'engines.plate_number' ,
-                'engines.engine_type' ,
-                'engines.engine_status' ,
-                'equipments.equipment_name' ,
-                'engine_equipments.quantity' ,
-                'checklist_equipment.status'
+                'engines.engine_number',
+                'engines.plate_number',
+                'engines.engine_type',
+                'engines.engine_status',
+                'equipments.equipment_name',
+                'engine_equipments.quantity',
+                'checklist_equipment.status',
+                'checklist.checked_by'
             )
             ->get();
+
         return response()->json($ce);
     }
 
@@ -63,7 +65,17 @@ class Checklist_EquipmentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validate = $request->validate([
+            'status' => 'required|boolean' ,
+        ]);
+
+        $checklist = ChecklistEquipment::where('ee_id', $id)->first();
+
+        if( isset( $validate['status'] ) ){
+            $checklist->status = $validate['status'];
+        }
+
+        return response()->json($checklist);
     }
 
     /**

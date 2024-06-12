@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('engine_id')->constrained('engines')->onDelete('cascade');
             $table->boolean('engine_status')->default(1);
             $table->string('water_level');
+            $table->string('checked_by');
             $table->text('remarks')->nullable();
             $table->timestamps();
         });
